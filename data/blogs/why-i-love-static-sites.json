@@ -1,0 +1,11 @@
+{
+    "id": "why-i-love-static-sites",
+    "title": "Why I Love Static Sites in 2024",
+    "datePublished": "2024-02-05",
+    "category": "Thoughts",
+    "readTime": "5 min read",
+    "wordCount": 800,
+    "excerpt": "Static sites are making a comeback, and for good reason. Here's why I think they're perfect for most use cases.",
+    "content": "In an era of complex web frameworks and serverless architectures, static sites might seem outdated. But I believe they're more relevant than ever.\n\nLet me share why I've fallen in love with static sites again.\n\n**Performance is unmatched.** When your site is just HTML, CSS, and JavaScript files served from a CDN, load times are incredibly fast. No server processing, no database queries, no waiting.\n\n**Security is simple.** There's no server to hack, no database to compromise, no admin panel to secure. Your attack surface is minimal.\n\n**Hosting is cheap (or free).** GitHub Pages, Netlify, Vercel—they all offer generous free tiers for static sites. You can host a professional website for $0.\n\n**Version control is built-in.** Your entire site lives in git. Want to roll back a change? `git revert`. Want to see what changed? `git diff`. It's all there.\n\n**The tooling has evolved.** Modern static site generators like Astro, Next.js (with static export), and even vanilla approaches like mine offer great developer experiences.\n\nOf course, static sites aren't perfect for everything. You can't have real-time data or user authentication without external services. But for portfolios, blogs, documentation, and marketing sites? They're ideal.\n\nThe web is cyclical. We went from static HTML to dynamic server-side rendering, then to SPAs, and now we're rediscovering the benefits of static sites—but with modern tooling and deployment.\n\nSometimes the old ways, refined with new knowledge, are the best ways.",
+    "tags": ["thoughts", "web-development", "static-sites", "performance"]
+}
