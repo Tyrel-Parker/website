@@ -1,0 +1,16 @@
+{
+    "id": "sapiens",
+    "title": "Sapiens: A Brief History of Humankind",
+    "author": "Yuval Noah Harari",
+    "dateRead": "2023-11-20",
+    "rating": 9,
+    "genre": "Non-Fiction",
+    "shortDescription": "An exploration of how Homo sapiens came to dominate the world through cognitive, agricultural, and scientific revolutions.",
+    "fullDescription": "Harari presents a sweeping narrative of human history that challenges many assumptions about how we became the dominant species on Earth. The book is structured around three major revolutions: the Cognitive Revolution (70,000 years ago), the Agricultural Revolution (12,000 years ago), and the Scientific Revolution (500 years ago). What's most compelling is Harari's ability to connect historical developments to contemporary issues, making readers think differently about concepts like money, religion, and political systems. His perspective on how shared myths and stories enabled large-scale human cooperation is particularly thought-provoking.",
+    "highlights": [
+        "The ability to create and believe in shared myths is what allowed humans to cooperate in large numbers",
+        "The Agricultural Revolution was 'history's biggest fraud' - making life harder for most individuals",
+        "Money is the most universal and efficient system of mutual trust ever devised"
+    ],
+    "tags": ["history", "anthropology", "society", "evolution"]
+}

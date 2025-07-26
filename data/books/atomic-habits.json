@@ -1,0 +1,16 @@
+{
+    "id": "atomic-habits",
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "dateRead": "2024-01-15",
+    "rating": 9,
+    "genre": "Non-Fiction",
+    "shortDescription": "A practical guide to building good habits and breaking bad ones through small, incremental changes.",
+    "fullDescription": "James Clear presents a comprehensive system for habit formation that focuses on making tiny changes that compound over time. The book breaks down the science behind habits and provides actionable strategies for creating positive behavioral changes. Clear's approach is refreshingly practical, emphasizing that small improvements of just 1% can lead to remarkable results when compounded over time. The four-step habit loop (cue, craving, response, reward) provides a clear framework for understanding how habits work and how to modify them effectively.",
+    "highlights": [
+        "You do not rise to the level of your goals. You fall to the level of your systems.",
+        "Habits are the compound interest of self-improvement",
+        "Focus on identity-based habits rather than outcome-based habits"
+    ],
+    "tags": ["productivity", "self-improvement", "psychology", "habits"]
+}
