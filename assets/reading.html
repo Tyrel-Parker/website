@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading - Tyrel Parker</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="utils.js"></script>
+</head>
+<body>
+    <div class="reading-container">
+        <a href="../index.html" class="back-link">Back to Home</a>
+        
+        <div class="page-header">
+            <h1 class="page-title">Reading</h1>
+            <p class="page-subtitle">Books that shaped my thinking and perspective</p>
+        </div>
+
+        <div id="stats-summary" class="stats-summary">
+            <h3>Reading Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-books">0</div>
+                    <div class="stat-label">Books Read</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="avg-rating">0</div>
+                    <div class="stat-label">Avg Rating</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="current-year">0</div>
+                    <div class="stat-label">This Year</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Books</button>
+            <button class="filter-btn" data-filter="2024">2024</button>
+            <button class="filter-btn" data-filter="2023">2023</button>
+            <button class="filter-btn" data-filter="fiction">Fiction</button>
+            <button class="filter-btn" data-filter="non-fiction">Non-Fiction</button>
+            <button class="filter-btn" data-filter="9+">Rating 9+</button>
+        </div>
+
+        <div class="books-list" id="books-list">
+            <div class="loading">Loading books...</div>
+        </div>
+    </div>
+
+    <script>
+        let booksData = [];
+        let currentFilter = 'all';
+
+        async function loadBooksData() {
+            try {
+                // First, get the list of book files from books-index.json
+                const indexResponse = await fetch('../data/books/books-index.json');
+                const bookFiles = await indexResponse.json();
+                
+                // Load each individual book file
+                const bookPromises = bookFiles.map(async (filename) => {
+                    const response = await fetch(`../data/books/${filename}`);
+                    return response.json();
+                });
+                
+                booksData = await Promise.all(bookPromises);
+                // Sort by date read (newest first)
+                booksData.sort((a, b) => new Date(b.dateRead) - new Date(a.dateRead));
+                updateStats();
+                renderBooks();
+            } catch (error) {
+                console.error('Error loading books data:', error);
+                document.getElementById('books-list').innerHTML = '<div class="loading">Error loading books</div>';
+            }
+        }
+
+        function formatDate(dateString) {
+            // Parse the date as local time to avoid timezone issues
+            const [year, month, day] = dateString.split('-');
+            const date = new Date(year, month - 1, day); // month is 0-indexed
+            return date.toLocaleDateString();
+        }
+
+        function updateStats() {
+            const totalBooks = booksData.length;
+            const avgRating = (booksData.reduce((sum, book) => sum + book.rating, 0) / totalBooks).toFixed(1);
+            const currentYear = new Date().getFullYear().toString();
+            const thisYearBooks = booksData.filter(book => book.dateRead.startsWith(currentYear)).length;
+
+            document.getElementById('total-books').textContent = totalBooks;
+            document.getElementById('avg-rating').textContent = avgRating;
+            document.getElementById('current-year').textContent = thisYearBooks;
+        }
+
+        function renderBooks() {
+            const booksList = document.getElementById('books-list');
+            let filteredBooks = booksData;
+
+            // Apply filters
+            if (currentFilter !== 'all') {
+                if (currentFilter === '2024' || currentFilter === '2023') {
+                    filteredBooks = booksData.filter(book => 
+                        book.dateRead.startsWith(currentFilter)
+                    );
+                } else if (currentFilter === 'fiction' || currentFilter === 'non-fiction') {
+                    filteredBooks = booksData.filter(book => 
+                        book.genre.toLowerCase() === currentFilter
+                    );
+                } else if (currentFilter === '9+') {
+                    filteredBooks = booksData.filter(book => book.rating >= 9);
+                }
+            }
+
+            if (filteredBooks.length === 0) {
+                booksList.innerHTML = '<div class="loading">No books found for this filter</div>';
+                return;
+            }
+
+            booksList.innerHTML = filteredBooks.map(book => `
+                <div class="book-card" onclick="toggleExpanded('${book.id}')">
+                    <div class="book-header">
+                        <div class="book-info">
+                            <h3 class="book-title">${book.title}</h3>
+                            <p class="book-author">by ${book.author}</p>
+                            <div class="book-meta">
+                                <div class="book-rating">
+                                    <span class="rating-value">${book.rating}/10</span>
+                                </div>
+                                <span class="book-date">${formatDate(book.dateRead)}</span>
+                                <span class="book-genre">${book.genre}</span>
+                            </div>
+                        </div>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    
+                    <div class="book-short-description">
+                        ${book.shortDescription}
+                    </div>
+                    
+                    <div class="book-full-content">
+                        <div class="book-full-description">
+                            ${book.fullDescription}
+                        </div>
+                        
+                        ${book.highlights && book.highlights.length > 0 ? `
+                            <div class="book-highlights">
+                                <div class="highlights-title">Key Takeaways</div>
+                                ${book.highlights.map(highlight => `
+                                    <div class="highlight-item">${highlight}</div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        ${book.tags && book.tags.length > 0 ? `
+                            <div class="book-tags">
+                                ${book.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleExpanded(bookId) {
+            const bookCard = event.currentTarget;
+            bookCard.classList.toggle('expanded');
+        }
+
+        function setupFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderBooks();
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBooksData();
+            setupFilters();
+        });
+    </script>
+</body>
+</html>

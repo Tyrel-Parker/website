@@ -1,0 +1,35 @@
+[
+    {
+        "name": "Photography",
+        "description": "Capturing moments and exploring creative perspectives.",
+        "icon": "📸",
+        "colorClass": "hobby-1",
+        "link": "assets/photography.html"
+    },
+    {
+        "name": "Coding",
+        "description": "Building applications and exploring new technologies.",
+        "icon": "💻",
+        "colorClass": "hobby-2"
+    },
+    {
+        "name": "Hiking",
+        "description": "Exploring nature trails and enjoying the outdoors.",
+        "icon": "🥾",
+        "colorClass": "hobby-3"
+    },
+    {
+        "name": "Reading",
+        "description": "Learning from books on technology, business, and personal development.",
+        "icon": "📚",
+        "colorClass": "hobby-4",
+        "link": "assets/reading.html"
+    },
+    {
+        "name": "Blog",
+        "description": "Sharing thoughts, tutorials, and insights from my life.",
+        "icon": "✍️",
+        "colorClass": "hobby-3",
+        "link": "assets/blog.html"
+    }
+]

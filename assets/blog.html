@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Tyrel Parker</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="utils.js"></script>
+</head>
+<body>
+    <div class="reading-container">
+        <a href="../index.html" class="back-link">Back to Home</a>
+        
+        <div class="page-header">
+            <h1 class="page-title">Blog</h1>
+            <p class="page-subtitle">Thoughts, tutorials, and insights from my development journey</p>
+        </div>
+
+        <div id="stats-summary" class="stats-summary">
+            <h3>Blog Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-posts">0</div>
+                    <div class="stat-label">Posts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="total-words">0</div>
+                    <div class="stat-label">Words</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="current-year-posts">0</div>
+                    <div class="stat-label">This Year</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters" id="filters">
+            <button class="filter-btn active" data-filter="all">All Posts</button>
+            <!-- Dynamic filters will be added here -->
+        </div>
+
+        <div class="books-list" id="blog-list">
+            <div class="loading">Loading blog posts...</div>
+        </div>
+    </div>
+
+    <script>
+        let blogData = [];
+        let currentFilter = 'all';
+
+        async function loadBlogData() {
+            try {
+                // First, get the list of blog files from blog-index.json
+                const indexResponse = await fetch('../data/blogs/blog-index.json');
+                const blogFiles = await indexResponse.json();
+                
+                // Load each individual blog file
+                const blogPromises = blogFiles.map(async (filename) => {
+                    const response = await fetch(`../data/blogs/${filename}`);
+                    return response.json();
+                });
+                
+                blogData = await Promise.all(blogPromises);
+                // Sort by date published (newest first)
+                blogData.sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished));
+                updateStats();
+                renderBlog();
+            } catch (error) {
+                console.error('Error loading blog data:', error);
+                document.getElementById('blog-list').innerHTML = '<div class="loading">Error loading blog posts</div>';
+            }
+        }
+
+        function generateDynamicFilters() {
+            const years = new Set();
+            const categories = new Set();
+            const tags = new Set();
+
+            // Extract years, categories, and tags from blog data
+            blogData.forEach(post => {
+                // Extract year from datePublished
+                const year = post.datePublished.split('-')[0];
+                years.add(year);
+                
+                // Add category if it exists
+                if (post.category) {
+                    categories.add(post.category.toLowerCase());
+                }
+                
+                // Add all tags
+                if (post.tags && Array.isArray(post.tags)) {
+                    post.tags.forEach(tag => tags.add(tag.toLowerCase()));
+                }
+            });
+
+            // Sort years in descending order (newest first)
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+            
+            // Sort categories and tags alphabetically
+            const sortedCategories = Array.from(categories).sort();
+            const sortedTags = Array.from(tags).sort();
+
+            // Build filter HTML
+            let filterHTML = '<button class="filter-btn active" data-filter="all">All Posts</button>';
+            
+            // Add year filters
+            sortedYears.forEach(year => {
+                filterHTML += `<button class="filter-btn" data-filter="${year}">${year}</button>`;
+            });
+            
+            // Add category filters
+            sortedCategories.forEach(category => {
+                // Capitalize first letter for display
+                const displayCategory = category.charAt(0).toUpperCase() + category.slice(1);
+                filterHTML += `<button class="filter-btn" data-filter="category:${category}">${displayCategory}</button>`;
+            });
+            
+            // Add tag filters (limit to most common ones to avoid clutter)
+            sortedTags.slice(0, 6).forEach(tag => {
+                // Capitalize first letter for display
+                const displayTag = tag.charAt(0).toUpperCase() + tag.slice(1);
+                filterHTML += `<button class="filter-btn" data-filter="tag:${tag}">#${displayTag}</button>`;
+            });
+
+            // Update the filters container
+            document.getElementById('filters').innerHTML = filterHTML;
+            
+            // Re-setup filter event listeners
+            setupFilters();
+        }
+
+        function updateStats() {
+            const totalPosts = blogData.length;
+            const totalWords = blogData.reduce((sum, post) => sum + (post.wordCount || 0), 0);
+            const currentYear = new Date().getFullYear().toString();
+            const thisYearPosts = blogData.filter(post => post.datePublished.startsWith(currentYear)).length;
+
+            document.getElementById('total-posts').textContent = totalPosts;
+            document.getElementById('total-words').textContent = totalWords.toLocaleString();
+            document.getElementById('current-year-posts').textContent = thisYearPosts;
+        }
+
+        function formatDate(dateString) {
+            // Parse the date as local time to avoid timezone issues
+            const [year, month, day] = dateString.split('-');
+            const date = new Date(year, month - 1, day); // month is 0-indexed
+            return date.toLocaleDateString();
+        }
+
+        function renderBlog() {
+            const blogList = document.getElementById('blog-list');
+            let filteredPosts = blogData;
+
+            // Apply filters
+            if (currentFilter !== 'all') {
+                if (/^\d{4}$/.test(currentFilter)) {
+                    // Year filter (4 digits)
+                    filteredPosts = blogData.filter(post => 
+                        post.datePublished.startsWith(currentFilter)
+                    );
+                } else if (currentFilter.startsWith('category:')) {
+                    // Category filter
+                    const category = currentFilter.replace('category:', '');
+                    filteredPosts = blogData.filter(post => 
+                        post.category && post.category.toLowerCase() === category
+                    );
+                } else if (currentFilter.startsWith('tag:')) {
+                    // Tag filter
+                    const tag = currentFilter.replace('tag:', '');
+                    filteredPosts = blogData.filter(post => 
+                        post.tags && post.tags.some(t => t.toLowerCase() === tag)
+                    );
+                } else {
+                    // Legacy filter (backward compatibility)
+                    filteredPosts = blogData.filter(post => 
+                        post.tags && post.tags.includes(currentFilter)
+                    );
+                }
+            }
+
+            if (filteredPosts.length === 0) {
+                blogList.innerHTML = '<div class="loading">No blog posts found for this filter</div>';
+                return;
+            }
+
+            blogList.innerHTML = filteredPosts.map(post => `
+                <div class="book-card" onclick="toggleExpanded('${post.id}')">
+                    <div class="book-header">
+                        <div class="book-info">
+                            <h3 class="book-title">${post.title}</h3>
+                            <p class="book-author">${formatDate(post.datePublished)} • ${post.readTime || '5 min read'}</p>
+                            <div class="book-meta">
+                                <span class="book-genre">${post.category || 'General'}</span>
+                                ${post.wordCount ? `<span class="book-date">${post.wordCount} words</span>` : ''}
+                            </div>
+                        </div>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    
+                    <div class="book-short-description">
+                        ${post.excerpt}
+                    </div>
+                    
+                    <div class="book-full-content">
+                        <div class="book-full-description">
+                            ${post.content.split('\n').map(paragraph => 
+                                paragraph.trim() ? `<p>${paragraph}</p>` : ''
+                            ).join('')}
+                        </div>
+                        
+                        ${post.tags && post.tags.length > 0 ? `
+                            <div class="book-tags">
+                                ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleExpanded(postId) {
+            const postCard = event.currentTarget;
+            postCard.classList.toggle('expanded');
+        }
+
+        function setupFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderBlog();
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBlogData().then(() => {
+                generateDynamicFilters();
+            });
+        });
+    </script>
+</body>
+</html>

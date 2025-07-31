@@ -1,0 +1,23 @@
+[
+    {
+        "name": "Multi Loan Payoff Comparison",
+        "url": "https://loan.tyrelparker.com",
+        "description": "I wanted a way to compare loan payoff strategies and see the benefits. This allows you to create different sets of loans (student, mortgage, cc) and play with some payoff options and then combine them all into 1 to see the savings. All of the data you enter is stored on your computer.",
+        "icon": "LC",
+        "colorClass": "app-1"
+    },
+    {
+        "name": "Password Generator",
+        "url": "https://pw.tyrelparker.com",
+        "description": "A password generator that is slightly customizable and doesn't require you to install or sign up for anything.",
+        "icon": "PW",
+        "colorClass": "app-2"
+    },
+    {
+        "name": "Alarms",
+        "url": "https://alarm.tyrelparker.com",
+        "description": "Setup multiple alarm sets and run them on your computer. Need to remember to stand up and move while working? This is the app. Need to build a workout alarm set to keep you on track? This is the app.",
+        "icon": "A",
+        "colorClass": "app-3"
+    }
+]

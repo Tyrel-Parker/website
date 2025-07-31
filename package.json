@@ -1,0 +1,25 @@
+{
+  "name": "tyrel-parker-website",
+  "version": "1.0.0",
+  "description": "Personal website with apps, photography, book reviews, and blog",
+  "scripts": {
+    "parse-books": "node scripts/parse-content.js book content/books data/books",
+    "add-books": "node scripts/add-books.js",
+    "deploy-books": "node scripts/add-books.js && git push",
+    
+    "parse-pics": "node scripts/parse-content.js photo content/photography data/photography",
+    "add-pics": "node scripts/add-pics.js",
+    "deploy-pics": "node scripts/add-pics.js && git push",
+    
+    "parse-blog": "node scripts/parse-content.js blog content/blogs data/blogs",
+    "add-blog": "node scripts/add-blog.js",
+    "deploy-blog": "node scripts/add-blog.js && git push",
+    
+    "parse-all": "npm run parse-blog && npm run parse-books && npm run parse-pics",
+    "add-all": "npm run add-blog && npm run add-books && npm run add-pics",
+    "deploy-all": "npm run add-all && git push",
+    "parse-and-deploy": "npm run parse-all && npm run deploy-all"
+  },
+  "keywords": ["portfolio", "photography", "books", "blog"],
+  "author": "Tyrel Parker"
+}

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography - Tyrel Parker</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="utils.js"></script>
+</head>
+<body>
+    <div class="photography-container">
+        <a href="../index.html" class="back-link">Back to Home</a>
+        
+        <div class="page-header">
+            <h1 class="page-title">Photography</h1>
+            <p class="page-subtitle">Capturing moments and exploring creative perspectives</p>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="landscape">Landscape</button>
+            <button class="filter-btn" data-filter="portrait">Portrait</button>
+            <button class="filter-btn" data-filter="street">Street</button>
+            <button class="filter-btn" data-filter="nature">Nature</button>
+        </div>
+
+        <div class="gallery-grid" id="gallery">
+            <div class="loading">Loading gallery...</div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <img id="modalImage" class="modal-image" src="" alt="">
+            <div id="modalInfo" class="modal-info"></div>
+        </div>
+    </div>
+
+    <script>
+        let photographyData = [];
+        let currentFilter = 'all';
+
+        async function loadPhotographyData() {
+            try {
+                // First, get the list of photo files from pic-index.json
+                const indexResponse = await fetch('../data/photography/pic-index.json');
+                const photoFiles = await indexResponse.json();
+                
+                // Load each individual photo file
+                const photoPromises = photoFiles.map(async (filename) => {
+                    const response = await fetch(`../data/photography/${filename}`);
+                    return response.json();
+                });
+                
+                photographyData = await Promise.all(photoPromises);
+                // Sort by date (newest first)
+                photographyData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                renderGallery();
+            } catch (error) {
+                console.error('Error loading photography data:', error);
+                document.getElementById('gallery').innerHTML = '<div class="loading">Error loading gallery</div>';
+            }
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const filteredPhotos = currentFilter === 'all' 
+                ? photographyData 
+                : photographyData.filter(photo => photo.tags.includes(currentFilter));
+
+            if (filteredPhotos.length === 0) {
+                gallery.innerHTML = '<div class="loading">No photos found for this filter</div>';
+                return;
+            }
+
+            gallery.innerHTML = filteredPhotos.map(photo => `
+                <div class="photo-card" onclick="openModal('${photo.id}')">
+                    <img src="../assets/images/${photo.filename}" alt="${photo.title}" class="photo-image" loading="lazy">
+                    <div class="photo-info">
+                        <h3 class="photo-title">${photo.title}</h3>
+                        <p class="photo-description">${photo.description}</p>
+                        <div class="photo-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Location</span>
+                                <span>${photo.location}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Date</span>
+                                <span>${formatDate(photo.date)}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Camera</span>
+                                <span>${photo.camera}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Settings</span>
+                                <span>${photo.settings}</span>
+                            </div>
+                        </div>
+                        <div class="photo-tags">
+                            ${photo.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setupFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderGallery();
+                });
+            });
+        }
+
+        function openModal(photoId) {
+            const photo = photographyData.find(p => p.id === photoId);
+            if (!photo) return;
+
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalInfo = document.getElementById('modalInfo');
+
+            modalImage.src = `../assets/images/${photo.filename}`;
+            modalImage.alt = photo.title;
+
+            modalInfo.innerHTML = `
+                <h3 style="margin-bottom: 10px; color: #333;">${photo.title}</h3>
+                <p style="margin-bottom: 15px; color: #666;">${photo.description}</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    <div><strong>Location:</strong> ${photo.location}</div>
+                    <div><strong>Date:</strong> ${formatDate(photo.date)}</div>
+                    <div><strong>Camera:</strong> ${photo.camera}</div>
+                    <div><strong>Settings:</strong> ${photo.settings}</div>
+                </div>
+                <div class="photo-tags">
+                    ${photo.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPhotographyData();
+            setupFilters();
+
+            document.querySelector('.close-modal').addEventListener('click', closeModal);
+            document.getElementById('imageModal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeModal();
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        });
+    </script>
+</body>
+</html>
