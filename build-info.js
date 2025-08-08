@@ -1,7 +1,7 @@
 
 async function checkBuildInfo() {
   try {
-    const response = await fetch('/build-meta.json');
+    const response = await fetch('./build-meta.json');
     const buildInfo = await response.json();
     
     console.group('🚀 Build Information');
