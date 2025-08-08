@@ -308,12 +308,6 @@ if (args.length < 3) {
 Usage: node scripts/parse-content.js <type> <input-dir> <output-dir>
 
 Types: blog, book, photo
-
-Table example in Markdown:
-| Column 1 | Column 2 | Column 3 |
-|----------|:--------:|---------:|
-| Left     | Center   | Right    |
-| Data     | More     | Values   |
 `);
     process.exit(1);
 }
