@@ -1,111 +1,40 @@
+// Install: npm install marked
+const { marked } = require('marked');
 const fs = require('fs');
 const path = require('path');
 
+// Configure marked with custom renderer for your CSS classes
+const renderer = new marked.Renderer();
+
+// Customize the renderer for your specific CSS classes
+renderer.code = function(code, language) {
+    return `<code class="blog-code-inline">${code}</code>`;
+};
+
+renderer.blockquote = function(quote) {
+    return `<blockquote class="blog-quote">${quote}</blockquote>`;
+};
+
+renderer.table = function(header, body) {
+    return `<table class="blog-table">
+<thead>${header}</thead>
+<tbody>${body}</tbody>
+</table>`;
+};
+
+// Configure marked options
+marked.setOptions({
+    renderer: renderer,
+    gfm: true, // GitHub Flavored Markdown (includes tables)
+    breaks: false,
+    pedantic: false,
+    sanitize: false,
+    smartLists: true,
+    smartypants: false
+});
+
 function convertMarkdownToHTML(markdown) {
-    let html = markdown;
-    
-    // First, handle code blocks and inline code to protect them
-    const codeBlocks = [];
-    const inlineCode = [];
-    
-    // Protect inline code
-    html = html.replace(/`([^`]+)`/g, (match, code) => {
-        inlineCode.push(`<code class="blog-code-inline">${code}</code>`);
-        return `__INLINE_CODE_${inlineCode.length - 1}__`;
-    });
-    
-    // Split into lines for better processing
-    const lines = html.split('\n');
-    const processedLines = [];
-    let inList = false;
-    let listType = '';
-    
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        
-        // Headers (must be at start of line)
-        if (/^### /.test(line)) {
-            line = line.replace(/^### (.*)$/, '<h3>$1</h3>');
-        } else if (/^## /.test(line)) {
-            line = line.replace(/^## (.*)$/, '<h2>$1</h2>');
-        } else if (/^# /.test(line)) {
-            line = line.replace(/^# (.*)$/, '<h1>$1</h1>');
-        }
-        // Blockquotes
-        else if (/^> /.test(line)) {
-            line = line.replace(/^> (.*)$/, '<blockquote class="blog-quote">$1</blockquote>');
-        }
-        // Lists
-        else if (/^[\s]*[-*+]\s/.test(line)) {
-            if (!inList || listType !== 'ul') {
-                if (inList) processedLines.push(`</${listType}>`);
-                processedLines.push('<ul>');
-                inList = true;
-                listType = 'ul';
-            }
-            line = line.replace(/^[\s]*[-*+]\s(.*)$/, '<li>$1</li>');
-        }
-        else if (/^[\s]*\d+\.\s/.test(line)) {
-            if (!inList || listType !== 'ol') {
-                if (inList) processedLines.push(`</${listType}>`);
-                processedLines.push('<ol>');
-                inList = true;
-                listType = 'ol';
-            }
-            line = line.replace(/^[\s]*\d+\.\s(.*)$/, '<li>$1</li>');
-        }
-        // Close lists when we hit a non-list line
-        else if (inList && line.trim() !== '') {
-            processedLines.push(`</${listType}>`);
-            inList = false;
-            listType = '';
-        }
-        
-        processedLines.push(line);
-    }
-    
-    // Close any open list
-    if (inList) {
-        processedLines.push(`</${listType}>`);
-    }
-    
-    html = processedLines.join('\n');
-    
-    // Bold and italic (after line processing)
-    html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, '<em>$1</em>');
-    
-    // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-    
-    // Convert double newlines to paragraph breaks, but protect existing HTML tags
-    const paragraphs = html.split(/\n\s*\n/);
-    const processedParagraphs = paragraphs.map(para => {
-        para = para.trim();
-        if (!para) return '';
-        
-        // Don't wrap if it's already an HTML block element
-        if (/^<(h[1-6]|div|blockquote|ul|ol|li)[\s>]/.test(para) || /^<\/(h[1-6]|div|blockquote|ul|ol|li)>/.test(para)) {
-            return para;
-        }
-        
-        // Don't wrap if the entire paragraph is already wrapped in HTML
-        if (/^<[^>]+>.*<\/[^>]+>$/.test(para)) {
-            return para;
-        }
-        
-        return `<p>${para}</p>`;
-    });
-    
-    html = processedParagraphs.join('\n\n');
-    
-    // Restore inline code
-    html = html.replace(/__INLINE_CODE_(\d+)__/g, (match, index) => {
-        return inlineCode[parseInt(index)];
-    });
-    
-    return html;
+    return marked(markdown);
 }
 
 function parseContentFile(filePath, type = 'blog') {
@@ -165,7 +94,7 @@ function parseContentFile(filePath, type = 'blog') {
         }
     }
     
-    // Get all content (preserving everything including HTML, comments, etc.)
+    // Get all content
     const contentLines = lines.slice(contentStartIndex);
     const mainContent = contentLines.join('\n').trim();
     
@@ -174,10 +103,10 @@ function parseContentFile(filePath, type = 'blog') {
         ? convertMarkdownToHTML(mainContent)
         : mainContent;
     
-    // Calculate word count (approximate, excluding HTML tags)
+    // Calculate word count
     const wordCount = calculateWordCount(finalContent);
     
-    // Generate excerpt if not provided (first paragraph, ~150 chars)
+    // Generate excerpt if not provided
     const excerpt = frontmatter.excerpt || generateExcerpt(finalContent);
     
     // Generate default values based on type
@@ -191,7 +120,6 @@ function parseContentFile(filePath, type = 'blog') {
         excerpt: excerpt
     };
     
-    // Put content in - JSON.stringify will handle all escaping
     result.content = finalContent;
     
     return result;
@@ -248,7 +176,7 @@ function getDefaults(type, filename) {
                 author: '',
                 title: '',
                 shortDescription: '',
-                fullDescription: '', // This will be the main content
+                fullDescription: '',
                 highlights: [],
                 tags: []
             };
@@ -256,7 +184,7 @@ function getDefaults(type, filename) {
             return {
                 ...baseDefaults,
                 title: '',
-                description: '', // This will be the main content
+                description: '',
                 date: new Date().toISOString().split('T')[0],
                 filename: '',
                 location: '',
@@ -297,7 +225,6 @@ function processDirectory(inputDir, outputDir, type) {
         
         try {
             const parsed = parseContentFile(inputPath, type);
-            // Let JSON.stringify handle all the escaping properly
             fs.writeFileSync(outputPath, JSON.stringify(parsed, null, 4));
             console.log(`✅ ${file} → ${outputFileName} (${parsed.wordCount} words)`);
         } catch (error) {
@@ -321,94 +248,17 @@ Examples:
   node scripts/parse-content.js book content/books data/books  
   node scripts/parse-content.js photo content/photos data/photography
 
-File format examples:
-
-📝 BLOG POST (my-post.md) - Markdown format:
----
-title: My Amazing Blog Post
-datePublished: 2024-01-20
-category: Tutorial
-tags: ["web-dev", "javascript"]
-# This is a comment in frontmatter
----
-
-# Main Heading
-
-This is my blog content with **bold text** and *italic text*!
-
-## Subheading
-
-Here's a quote:
-> This is a blockquote that will become a styled quote block.
-
-Here's some \`inline code\` and a list:
-- First item
-- Second item
-- Third item
-
-[This is a link](https://example.com)
-
-📝 BLOG POST (my-post.txt) - HTML format:
----
-title: My Amazing Blog Post
-datePublished: 2024-01-20
-category: Tutorial
-tags: ["web-dev", "javascript"]
----
-
-<h1>Main Heading</h1>
-
-This is my blog content with <strong>bold text</strong> and <em>italic text</em>!
-
-<h2>Subheading</h2>
-
-<blockquote class="blog-quote">This is a styled quote block.</blockquote>
-
-Here's some <code class="blog-code-inline">inline code</code>.
-
-<a href="https://example.com">This is a link</a>
-
-📚 BOOK REVIEW (book-title.md):
----
-title: Atomic Habits
-author: James Clear
-rating: 9
-genre: Non-Fiction
-dateRead: 2024-01-15
-shortDescription: A practical guide to building good habits.
-highlights:
-  - "You do not rise to the level of your goals."
-  - "Habits are the compound interest of self-improvement"
-tags: ["productivity", "habits"]
----
-
-This becomes the fullDescription field.
-
-<strong>Why I loved this book:</strong>
-The approach is refreshingly practical...
-
-📸 PHOTO (photo-name.md):
----
-title: Mountain Sunset
-filename: sunset-mountains.jpg
-location: Colorado, USA
-date: 2024-08-15
-camera: Canon EOS R5
-settings: f/8, 1/250s, ISO 100
-tags: ["landscape", "mountains"]
----
-
-This becomes the description field.
-Golden hour lighting over the Rocky Mountains.
+Table example in Markdown:
+| Column 1 | Column 2 | Column 3 |
+|----------|:--------:|---------:|
+| Left     | Center   | Right    |
+| Data     | More     | Values   |
 
 Features:
-- ✅ Frontmatter is optional (--- markers not required)
-- ✅ HTML tags are preserved exactly
-- ✅ Comments supported in frontmatter (#)
-- ✅ HTML comments preserved in content
-- ✅ Automatic word count calculation
-- ✅ Auto-generated excerpts
-- ✅ Content can start anywhere in the file
+- ✅ Full GitHub Flavored Markdown support (including tables)
+- ✅ Custom CSS classes for your styling
+- ✅ Proper table parsing with alignment
+- ✅ All your existing frontmatter features
 `);
     process.exit(1);
 }

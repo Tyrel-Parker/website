@@ -687,6 +687,82 @@ h1 {
     color: #555;
 }
 
+/* Blog table styles */
+.blog-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 0.9em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.blog-table thead tr {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.blog-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-right: 1px solid #dee2e6;
+}
+
+.blog-table th:last-child {
+    border-right: none;
+}
+
+.blog-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+}
+
+.blog-table td:last-child {
+    border-right: none;
+}
+
+.blog-table tbody tr:nth-of-type(even) {
+    background-color: #f8f9fa;
+}
+
+.blog-table tbody tr:hover {
+    background-color: #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.blog-table tbody tr:last-of-type {
+    border-bottom: none;
+}
+
+/* Responsive table */
+@media screen and (max-width: 768px) {
+    .blog-table {
+        font-size: 0.8em;
+    }
+    
+    .blog-table th,
+    .blog-table td {
+        padding: 8px 10px;
+    }
+}
+
+/* Alternative: Make tables scroll horizontally on mobile */
+@media screen and (max-width: 600px) {
+    .blog-table-container {
+        overflow-x: auto;
+        margin: 1.5em 0;
+    }
+    
+    .blog-table {
+        min-width: 500px;
+        margin: 0;
+    }
+}
+
 /* Responsive styles for photography and reading pages */
 @media (max-width: 768px) {
     .photography-container, .reading-container {
