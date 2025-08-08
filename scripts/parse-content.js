@@ -1,41 +1,86 @@
 // Install: npm install marked
 const { marked } = require('marked');
-const fs = require('fs');
-const path = require('path');
 
-// Configure marked with custom renderer for your CSS classes
-const renderer = new marked.Renderer();
-
-// Customize the renderer for your specific CSS classes
-renderer.code = function(code, language) {
-    return `<code class="blog-code-inline">${code}</code>`;
+// Create a custom renderer that properly handles the new marked API
+const renderer = {
+    table(header, body) {
+        if (header) {
+            header = `<thead>\n${header}</thead>\n`;
+        }
+        if (body) {
+            body = `<tbody>\n${body}</tbody>\n`;
+        }
+        return `<table class="blog-table">\n${header}${body}</table>\n`;
+    },
+    
+    tablerow(content) {
+        return `<tr>\n${content}</tr>\n`;
+    },
+    
+    tablecell(content, flags) {
+        const type = flags.header ? 'th' : 'td';
+        const tag = flags.align
+            ? `<${type} align="${flags.align}">`
+            : `<${type}>`;
+        return tag + content + `</${type}>\n`;
+    },
+    
+    blockquote(quote) {
+        return `<blockquote class="blog-quote">\n${quote}</blockquote>\n`;
+    },
+    
+    code(code, infostring, escaped) {
+        return `<code class="blog-code-inline">${escaped ? code : escape(code)}</code>`;
+    },
+    
+    codespan(code) {
+        return `<code class="blog-code-inline">${code}</code>`;
+    }
 };
 
-renderer.blockquote = function(quote) {
-    return `<blockquote class="blog-quote">${quote}</blockquote>`;
-};
-
-renderer.table = function(header, body) {
-    return `<table class="blog-table">
-<thead>${header}</thead>
-<tbody>${body}</tbody>
-</table>`;
-};
-
-// Configure marked options
-marked.setOptions({
-    renderer: renderer,
-    gfm: true, // GitHub Flavored Markdown (includes tables)
-    breaks: false,
-    pedantic: false,
-    sanitize: false,
-    smartLists: true,
-    smartypants: false
-});
+// Helper function for escaping HTML
+function escape(html) {
+    return html
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
 function convertMarkdownToHTML(markdown) {
-    return marked(markdown);
+    // Use the new marked API
+    marked.use({ renderer });
+    
+    // Configure options
+    marked.setOptions({
+        gfm: true, // GitHub Flavored Markdown (includes tables)
+        breaks: false,
+        pedantic: false,
+        sanitize: false
+    });
+    
+    return marked.parse(markdown);
 }
+
+// Alternative simpler approach if the above still doesn't work
+function convertMarkdownToHTMLSimple(markdown) {
+    // Just use basic marked and post-process
+    const html = marked.parse(markdown, {
+        gfm: true,
+        breaks: false
+    });
+    
+    // Add your CSS classes via string replacement
+    return html
+        .replace(/<table>/g, '<table class="blog-table">')
+        .replace(/<blockquote>/g, '<blockquote class="blog-quote">')
+        .replace(/<code>/g, '<code class="blog-code-inline">');
+}
+
+// Rest of your existing code stays the same...
+const fs = require('fs');
+const path = require('path');
 
 function parseContentFile(filePath, type = 'blog') {
     const content = fs.readFileSync(filePath, 'utf8');
@@ -98,9 +143,23 @@ function parseContentFile(filePath, type = 'blog') {
     const contentLines = lines.slice(contentStartIndex);
     const mainContent = contentLines.join('\n').trim();
     
+    // Check if there's actually content to process
+    if (!mainContent || mainContent.length === 0) {
+        console.warn(`⚠️  Warning: ${path.basename(filePath)} has no content to process`);
+        return null; // Return null for empty files
+    }
+    
+    // Quick word count check before processing
+    const preliminaryWordCount = calculateWordCount(mainContent);
+    if (preliminaryWordCount === 0) {
+        console.warn(`⚠️  Warning: ${path.basename(filePath)} has no readable content (0 words)`);
+        return null; // Return null for files with no actual words
+    }
+    
     // Convert Markdown to HTML if the file is .md
+    // Try the simple approach first, fall back to custom renderer if needed
     const finalContent = path.extname(filePath) === '.md' 
-        ? convertMarkdownToHTML(mainContent)
+        ? convertMarkdownToHTMLSimple(mainContent)
         : mainContent;
     
     // Calculate word count
@@ -225,6 +284,13 @@ function processDirectory(inputDir, outputDir, type) {
         
         try {
             const parsed = parseContentFile(inputPath, type);
+            
+            // Skip files that returned null (empty content)
+            if (parsed === null) {
+                console.log(`⏭️  ${file} → Skipped (no content)`);
+                return;
+            }
+            
             fs.writeFileSync(outputPath, JSON.stringify(parsed, null, 4));
             console.log(`✅ ${file} → ${outputFileName} (${parsed.wordCount} words)`);
         } catch (error) {
@@ -243,25 +309,16 @@ Usage: node scripts/parse-content.js <type> <input-dir> <output-dir>
 
 Types: blog, book, photo
 
-Examples:
-  node scripts/parse-content.js blog content/blog data/blogs
-  node scripts/parse-content.js book content/books data/books  
-  node scripts/parse-content.js photo content/photos data/photography
-
 Table example in Markdown:
 | Column 1 | Column 2 | Column 3 |
 |----------|:--------:|---------:|
 | Left     | Center   | Right    |
 | Data     | More     | Values   |
-
-Features:
-- ✅ Full GitHub Flavored Markdown support (including tables)
-- ✅ Custom CSS classes for your styling
-- ✅ Proper table parsing with alignment
-- ✅ All your existing frontmatter features
 `);
     process.exit(1);
 }
 
 const [type, inputDir, outputDir] = args;
 processDirectory(inputDir, outputDir, type);
+
+module.exports = { convertMarkdownToHTML: convertMarkdownToHTMLSimple, parseContentFile };
