@@ -131,16 +131,6 @@ h1 {
     font-weight: bold;
 }
 
-.app-1 { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
-.app-2 { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
-.app-3 { background: linear-gradient(135deg, #45b7d1, #96c93d); }
-.app-4 { background: linear-gradient(135deg, #f093fb, #f5576c); }
-
-.hobby-1 { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); }
-.hobby-2 { background: linear-gradient(135deg, #fd79a8, #e84393); }
-.hobby-3 { background: linear-gradient(135deg, #00cec9, #00b894); }
-.hobby-4 { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
-
 .app-title, .hobby-title {
     font-size: 1.3rem;
     font-weight: 600;
