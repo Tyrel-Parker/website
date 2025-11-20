@@ -3,7 +3,7 @@
         "name": "Multi Loan Payoff Comparison",
         "url": "https://loan.tyrelparker.dev",
         "description": "I wanted a way to compare loan payoff strategies and see the benefits. This allows you to create different sets of loans (student, mortgage, cc) and play with some payoff options and then combine them all into 1 to see the savings. All of the data you enter is stored on your computer.",
-        "icon": "LC",
+        "icon": "🧮",
         "colorClass": "app-1"
     },
     {
@@ -17,7 +17,7 @@
         "name": "Alarms",
         "url": "https://alarm.tyrelparker.dev",
         "description": "Setup multiple alarm sets and run them on your computer. Need to remember to stand up and move while working? This is the app. Need to build a workout alarm set to keep you on track? This is the app.",
-        "icon": "A",
+        "icon": "⏰",
         "colorClass": "app-3"
     },
     {
@@ -26,5 +26,12 @@
         "description": "Simple game of reading flash cards in as fast as you can. Maintains high scores so you can show improvement. Uses the Dolch and Fry lists for k-5 word lists. Used AI to scrape academic lists to generate 6-12 word lists.",
         "icon": "SW",
         "colorClass": "app-4"
+    },
+    {
+        "name": "Arithmetic Practice Game",
+        "url": "https://arithmetic.tyrelparker.dev",
+        "description": "Simple arithmetic flashcard game.",
+        "icon": "<svg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'><line x1='8' y1='12' x2='16' y2='12' stroke='currentColor' stroke-width='2' stroke-linecap='round'/><line x1='12' y1='8' x2='12' y2='16' stroke='currentColor' stroke-width='2' stroke-linecap='round'/><line x1='32' y1='12' x2='40' y2='12' stroke='currentColor' stroke-width='2' stroke-linecap='round'/><line x1='8' y1='32' x2='16' y2='40' stroke='currentColor' stroke-width='2' stroke-linecap='round'/><line x1='16' y1='32' x2='8' y2='40' stroke='currentColor' stroke-width='2' stroke-linecap='round'/><circle cx='36' cy='33' r='1.5' fill='currentColor'/><line x1='32' y1='36' x2='40' y2='36' stroke='currentColor' stroke-width='2' stroke-linecap='round'/><circle cx='36' cy='39' r='1.5' fill='currentColor'/></svg>",
+        "colorClass": "app-5"
     }
 ]
