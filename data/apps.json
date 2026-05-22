@@ -34,5 +34,17 @@
         "url": "https://pet.tyrelparker.dev",
         "description": "First version of a digital pet. More features to come in the future.",
         "icon": "🐈"
+    },
+    {
+        "name": "DropCard",
+        "url": "https://dropcard.tyrelparker.dev",
+        "description": "A mobile-first contact sharing app built for meetings. The host creates a meeting and displays a QR code — attendees scan it, choose exactly what contact info they want to share, and instantly see everyone else in the room. No awkward card swapping, no sharing more than you want to.",
+        "icon": "🪪"
+    },
+    {
+        "name": "Spelling Blaster",
+        "url": "https://spelling.tyrelparker.dev",
+        "description": "An arcade-style typing game where words zigzag down the screen and you have to type and fire before they reach the bottom. Words are color-coded by difficulty, speed ramps up over time, and your top scores are saved locally. Good for sharpening your typing and spelling at the same time.",
+        "icon": "🎯"
     }
 ]
