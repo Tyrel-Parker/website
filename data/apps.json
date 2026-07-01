@@ -23,7 +23,7 @@
     {
         "name": "Sight Word Flash Card Game",
         "url": "https://words.tyrelparker.dev",
-        "description": "Simple game of reading flash cards in as fast as you can. Maintains high scores so you can show improvement. Uses the Dolch and Fry lists for k-5 word lists. Used AI to scrape academic lists to generate 6-12 word lists.",
+        "description": "Flash card game for practicing sight words from kindergarten through 12th grade. Race through word lists and track improvement with high scores.",
         "icon": "📖",
         "category": "Learning"
     },
@@ -51,7 +51,7 @@
     {
         "name": "Spelling Blaster",
         "url": "https://spelling.tyrelparker.dev",
-        "description": "An arcade-style typing game where words zigzag down the screen and you have to type and fire before they reach the bottom. Words are color-coded by difficulty, speed ramps up over time, and your top scores are saved locally. Good for sharpening your typing and spelling at the same time.",
+        "description": "A fun way for kids to practice spelling and build typing speed. Words fall down the screen and you have to type them before they reach the bottom. Difficulty and speed increase over time, and top scores are saved so kids can track their improvement.",
         "icon": "🎯",
         "category": "Learning"
     },
