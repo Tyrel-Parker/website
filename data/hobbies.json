@@ -7,12 +7,6 @@
         "link": "assets/photography.html"
     },
     {
-        "name": "Coding",
-        "description": "Building applications and exploring new technologies.",
-        "icon": "💻",
-        "colorClass": "hobby-2"
-    },
-    {
         "name": "Hiking",
         "description": "Exploring nature trails and enjoying the outdoors.",
         "icon": "🥾",
