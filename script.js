@@ -45,16 +45,73 @@ async function loadHobbies() {
     }
 }
 
-// Render apps to the page
+const CATEGORY_ORDER = ['Tools', 'Learning', 'Games'];
+const COLLAPSE_KEY = 'appCategoryState';
+
+function getCategoryState() {
+    try { return JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; }
+    catch { return {}; }
+}
+
+function saveCategoryState(state) {
+    localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state));
+}
+
+// Render apps to the page grouped by category
 function renderApps(apps) {
     const container = document.getElementById('apps-grid');
-    container.innerHTML = apps.map((app, index) => `
-        <a href="${app.url}" class="app-card">
-            <div class="app-icon" style="background: ${getGradient(index, 'app')}">${app.icon}</div>
-            <h3 class="app-title">${app.name}</h3>
-            <p class="app-description">${app.description}</p>
-        </a>
-    `).join('');
+    const state = getCategoryState();
+
+    const grouped = {};
+    apps.forEach((app, index) => {
+        const cat = app.category || 'Other';
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push({ ...app, _index: index });
+    });
+
+    const categories = Object.keys(grouped).sort((a, b) => {
+        const ai = CATEGORY_ORDER.indexOf(a);
+        const bi = CATEGORY_ORDER.indexOf(b);
+        return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
+    });
+
+    container.innerHTML = categories.map(cat => {
+        const collapsed = state[cat] !== false; // default: collapsed
+        const items = grouped[cat];
+        const cards = items.map(app => `
+            <a href="${app.url}" class="app-card">
+                <div class="app-icon" style="background: ${getGradient(app._index, 'app')}">${app.icon}</div>
+                <h3 class="app-title">${app.name}</h3>
+                <p class="app-description">${app.description}</p>
+            </a>
+        `).join('');
+
+        return `
+            <div class="app-category">
+                <button class="category-header${collapsed ? '' : ' open'}" data-category="${cat}">
+                    <span class="category-title">${cat}</span>
+                    <span class="category-count">${items.length} app${items.length !== 1 ? 's' : ''}</span>
+                    <span class="category-toggle">▼</span>
+                </button>
+                <div class="category-content${collapsed ? ' collapsed' : ''}">
+                    <div class="apps-grid">${cards}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.querySelectorAll('.category-header').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const cat = btn.dataset.category;
+            const content = btn.nextElementSibling;
+            const nowCollapsed = !content.classList.contains('collapsed');
+            content.classList.toggle('collapsed', nowCollapsed);
+            btn.classList.toggle('open', !nowCollapsed);
+            const s = getCategoryState();
+            s[cat] = nowCollapsed;
+            saveCategoryState(s);
+        });
+    });
 }
 
 // Render hobbies to the page

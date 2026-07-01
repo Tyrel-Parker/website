@@ -100,6 +100,69 @@ h1 {
     margin-top: 30px;
 }
 
+.app-category {
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.category-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: white;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease;
+}
+
+.category-header:hover {
+    background: #f0f8f2;
+}
+
+.category-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.category-count {
+    font-size: 0.85rem;
+    color: #999;
+    flex: 1;
+    text-align: left;
+}
+
+.category-toggle {
+    color: #48cc6a;
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+    transform: rotate(-90deg);
+}
+
+.category-header.open .category-toggle {
+    transform: rotate(0deg);
+}
+
+.category-content {
+    overflow: hidden;
+    max-height: 2000px;
+    transition: max-height 0.4s ease;
+}
+
+.category-content.collapsed {
+    max-height: 0;
+}
+
+.category-content .apps-grid {
+    margin-top: 0;
+    padding: 0 20px 20px;
+}
+
 .app-card, .hobby-card {
     background: white;
     border-radius: 15px;
