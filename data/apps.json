@@ -63,6 +63,13 @@
         "category": "Learning"
     },
     {
+        "name": "PaintPal",
+        "url": "https://tyrel-parker.github.io/paint-pal/",
+        "description": "Turn any photo into a coloring page. Use the built-in pictures or upload your own, then fill it in with paint-by-number or free paint mode. Three difficulty levels, works offline, and your progress saves automatically on your device.",
+        "icon": "🎨",
+        "category": "Games"
+    },
+    {
         "name": "Arcade",
         "url": "https://games.tyrelparker.dev",
         "description": "A collection of remade arcade classics built for fun — Pac-Man and more. Retro style, browser-based.",
